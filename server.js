@@ -18,10 +18,26 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:3000',
-  credentials: true // if you're using cookies or auth headers
-}));
+// const cors = require("cors");
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://www.snatchers.in"
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true, // if you're using cookies or auth headers
+  })
+);
+
 app.use(express.json());
 
 // Routes
