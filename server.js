@@ -10,7 +10,7 @@ import authRoutes from './routes/auth.js';
 import wishlistRoutes from './routes/wishlist.js';
 import userRoutes from './routes/user.js'; // ✅ Add this line
 import productRoutes from './routes/product.js';
-import cartRoutes from "./routes/cartRoutes.js";
+import cartRoutes from "./routes/cart.js";
 
 dotenv.config(); 
 
