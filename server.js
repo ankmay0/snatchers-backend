@@ -42,7 +42,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api', authRoutes);              // 🔑 Login (POST /api/auth/google)
-app.use('/api', userRoutes);              // 👤 User routes (POST /api/user, GET /api/user/me)
+app.use('/api/user', userRoutes);              // 👤 User routes (POST /api/user, GET /api/user/me)
 app.use('/api/wishlist', wishlistRoutes); // 🛒 Wishlist protected routes
 app.use("/api/products", productRoutes); // productRoutes imported correctly
 app.use("/api/cart", cartRoutes); // 🛒 Cart protected routes
