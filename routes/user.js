@@ -1,12 +1,10 @@
-// routes/user.js
-
 import express from 'express';
 import User from '../models/User.js';
 import verifyToken from '../middleware/auth.js';
 
 const router = express.Router();
 
-// ✅ Save user after login/signup
+// ✅ Save or get user
 router.post('/', async (req, res) => {
   const { uid, name, email, photoURL } = req.body;
 
@@ -24,16 +22,19 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ✅ Protected route to get user info from token (creates user if not exists)
+// ✅ Protected route to get user info from token
 router.get('/me', verifyToken, async (req, res) => {
   try {
     let user = await User.findOne({ uid: req.user.uid });
 
-    // 🔄 If user not found, create one with token info
+    // 🔧 Auto-create user if not found
     if (!user) {
-      const { uid, name, email, picture: photoURL } = req.user;
-
-      user = new User({ uid, name, email, photoURL });
+      user = new User({
+        uid: req.user.uid,
+        name: req.user.name || "Unknown",
+        email: req.user.email || "unknown@example.com",
+        photoURL: req.user.photoURL || ""
+      });
       await user.save();
     }
 
