@@ -1,53 +1,66 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import ProductCard from '../UI/ProductCard';
-import { useNavigate } from 'react-router-dom';
+// routes/wishlist.js
+import express from "express";
+import Wishlist from "../models/Wishlist.js";
+import verifyToken from "../middleware/auth.js";
 
-const Wishlist = () => {
-  const [wishlist, setWishlist] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+const router = express.Router();
 
-  const fetchWishlist = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+// GET: Fetch wishlist for logged-in user
+// router.get("/:userId", verifyToken, async (req, res) => {
+//   try {
+//     const wishlist = await Wishlist.findOne({ userId: req.user.uid }).populate("products");
+//     res.json(wishlist?.products || []);
+//   } catch (err) {
+//     res.status(500).json({ message: "Error fetching wishlist", error: err });
+//   }
+// });
+router.get("/", verifyToken, async (req, res) => {
+  try {
+    console.log("Decoded user ID:", req.user?.uid); // log userId
 
-      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/wishlist`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const wishlist = await Wishlist.findOne({ userId: req.user.uid }).populate("products");
 
-      setWishlist(res.data);
-    } catch (error) {
-      console.error('Failed to fetch wishlist:', error.response?.data || error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchWishlist();
-  }, []);
-
-  if (loading) {
-    return <div className="text-center mt-10 text-lg">Loading your wishlist...</div>;
+    res.json(wishlist?.products || []);
+  } catch (err) {
+    console.error("Wishlist fetch error:", err); // detailed log
+    res.status(500).json({ message: "Error fetching wishlist", error: err.message });
   }
+});
 
-  return (
-    <div className="p-4 sm:p-8 bg-white min-h-screen">
-      <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">Your Wishlist</h2>
+// POST: Add product to wishlist
+router.post("/:productId", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const productId = req.params.productId;
 
-      {wishlist.length === 0 ? (
-        <p className="text-center text-gray-500">Your wishlist is empty.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {wishlist.map((item) => (
-            <ProductCard key={item._id} productCard={item} />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+    let wishlist = await Wishlist.findOne({ userId });
+    if (!wishlist) {
+      wishlist = new Wishlist({ userId, products: [productId] });
+    } else if (!wishlist.products.includes(productId)) {
+      wishlist.products.push(productId);
+    }
+    await wishlist.save();
+    res.status(200).json({ message: "Added to wishlist", wishlist });
+  } catch (err) {
+    res.status(500).json({ message: "Error adding to wishlist", error: err });
+  }
+});
 
-export default Wishlist;
+// DELETE: Remove product from wishlist
+router.delete("/:productId", verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.uid;
+    const productId = req.params.productId;
+
+    const wishlist = await Wishlist.findOneAndUpdate(
+      { userId },
+      { $pull: { products: productId } },
+      { new: true }
+    );
+    res.status(200).json({ message: "Removed from wishlist", wishlist });
+  } catch (err) {
+    res.status(500).json({ message: "Error removing from wishlist", error: err });
+  }
+});
+
+export default router;
