@@ -11,6 +11,8 @@ import wishlistRoutes from './routes/wishlist.js';
 import userRoutes from './routes/user.js'; // ✅ Add this line
 import productRoutes from './routes/product.js';
 import cartRoutes from "./routes/cart.js";
+import shiprocketRoutes from './routes/shiprocket.js'; // ✅ Import Shiprocket routes
+import paymentRoutes from './routes/payment.js'; // ✅ Import payment routes
 
 dotenv.config(); 
 
@@ -46,6 +48,8 @@ app.use('/api/user', userRoutes);              // 👤 User routes (POST /api/us
 app.use('/api/wishlist', wishlistRoutes); // 🛒 Wishlist protected routes
 app.use("/api/products", productRoutes); // productRoutes imported correctly
 app.use("/api/cart", cartRoutes); // 🛒 Cart protected routes
+app.use('/api/shiprocket', shiprocketRoutes); // 🛳️ Shiprocket routes
+app.use('/api/payment', paymentRoutes); // 💳 Payment routes
 
 // Root
 app.get('/', (req, res) => {
