@@ -13,6 +13,8 @@ import productRoutes from './routes/product.js';
 import cartRoutes from "./routes/cart.js";
 import shiprocketRoutes from './routes/shiprocket.js'; // ✅ Import Shiprocket routes
 import paymentRoutes from './routes/payment.js'; // ✅ Import payment routes
+import shiprocketTokenRouter  from './routes/shiprockettoken.js'; // ✅ Import Shiprocket token route
+import searchRouter from './routes/search.js'; // ✅ Import search route
 
 dotenv.config(); 
 
@@ -50,6 +52,9 @@ app.use("/api/products", productRoutes); // productRoutes imported correctly
 app.use("/api/cart", cartRoutes); // 🛒 Cart protected routes
 app.use('/api/shiprocket', shiprocketRoutes); // 🛳️ Shiprocket routes
 app.use('/api/payment', paymentRoutes); // 💳 Payment routes
+app.use('/api/orders', shiprocketTokenRouter); // 🛳️ Shiprocket token route
+app.use('/search', searchRouter);
+
 
 // Root
 app.get('/', (req, res) => {
